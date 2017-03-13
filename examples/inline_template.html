@@ -2,56 +2,44 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="css/jquery.socialfeed.css">
+    <link rel="stylesheet" type="text/css" href="../css/jquery.socialfeed.css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
     <!-- jQuery -->
-	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
 	<!-- Codebird.js - required for TWITTER -->
-	<script src="bower_components/codebird-js/codebird.js"></script>
+	<script src="../bower_components/codebird-js/codebird.js"></script>
 	<!-- doT.js for rendering templates -->
-	<script src="bower_components/doT/doT.min.js"></script>
+	<script src="../bower_components/doT/doT.min.js"></script>
 	<!-- Moment.js for showing "time ago" and/or "date"-->
-	<script src="bower_components/moment/min/moment.min.js"></script>
+	<script src="../bower_components/moment/min/moment.min.js"></script>
 	<!-- Moment Locale to format the date to your language (eg. italian lang)-->
-	<script src="bower_components/moment/locale/it.js"></script>
+	<script src="../bower_components/moment/locale/it.js"></script>
 
-    <script type="text/javascript" src="js/jquery.socialfeed.js"></script>
+    <script type="text/javascript" src="../js/jquery.socialfeed.js"></script>
 
 
     <script type="text/javascript">
     	$(document).ready(function(){
     		$('.social-feed-container').socialfeed({
-	            // INSTAGRAM
-	           /* instagram:{
+				instagram:{
 	                accounts: ['@dhonipsaputra'],  //Array: Specify a list of accounts from which to pull posts
 	                limit: 10,                                    //Integer: max number of posts to load
 	                client_id: '445b8f3f0a5e41d485d71d2c25768b0a',       //String: Instagram client id (optional if using access token)
 	                access_token: '1198528209.445b8f3.48c92b920a224384bb3f76ff13b621a9' //'2077408365.88293d2.d88b8324cb2747168ef82eb4986479fd' //String: Instagram access token // get from here -> https://www.instagram.com/oauth/authorize/?client_id=88293d2d284141c4b5fa02afc42e2f46&redirect_uri=http://www.laboratorium.xyz&response_type=token&scope=public_content
-	            },*/
-				facebook:{
-			        accounts: ['@cplusco'],  //Array: Specify a list of accounts from which to pull wall posts
-			        limit: 12,                                   //Integer: max number of posts to load
-			        access_token: '1519286481659615|f107fae6b7e7e763dace587c6685d9a6',  //String: "APP_ID|APP_SECRET"
-			        fields: ['events'],
-			        overwrite_fields: true
-			    },
-
-			   /* weibo: 
-			    {
-			    	access_token: '2.00mfvCiG69Q7gD7f4fff06cf0VOIq6',
-			    	app_key : '3375264401',
-			    	method: 'statuses/friends_timeline.json',
-			    	parameters: {
-			    		uid: '2712633784',
-			    	}  
-			    },*/
-
-
+	            },
 	            // GENERAL SETTINGS
-	            length:400,                                      //Integer: For posts with text longer than this length, show an ellipsis.
+	            length:400,                                     //Integer: For posts with text longer than this length, show an ellipsis.
+	            template_html : 								//  Source of your template
+	            '<article class="twitter-post"> \
+			    <h4>{{=it.author_name}}</h4><p>{{=it.text}}  \
+			    <a href="{{=it.link}}" target="_blank">read more</a> \
+			    </p> \
+			    </article>',					
 	            callback: function(data)
 	            {
+	            	// see your console log.
+	            	console.log(data);
 	            },
 	        });
     	})

@@ -26,7 +26,7 @@ if (typeof Object.create !== 'function') {
 
         var defaults = {
             plugin_folder: '', // a folder in which the plugin is located (with a slash in the end)
-            template: 'template.html', // a path to the template file
+            template: false, // a path to the template file
             show_media: false, // show images of attachments if available
             media_min_width: 300,
             length: 500, // maximum length of post message shown
@@ -160,6 +160,7 @@ if (typeof Object.create !== 'function') {
         SocialFeedPost.prototype = {
             template_builder: function(data)
             {
+
                 var rendered_html = Feed.template(data);
                 if ($(container).children('[social-feed-id=' + data.id + ']').length !== 0) {
                     return false;
@@ -230,9 +231,12 @@ if (typeof Object.create !== 'function') {
                 if (loaded_post_count == posts_to_load_count && $.unique(_glob_media).length == diff.length) {
 
                     $.fn.socialfeed.records = _glob_records.sort(Utility.sort_feed)
-                    $.each($.fn.socialfeed.records, function(a,b){
-                        SocialFeedPost.prototype.template_builder(b)
-                    })
+                    if(options.template || options.template_html)
+                    {
+                        $.each($.fn.socialfeed.records, function(a,b){
+                            SocialFeedPost.prototype.template_builder(b)
+                        })
+                    }
 
                     if(options.callback){ options.callback($.fn.socialfeed.records); }
                     if(options.raw){ options.raw(event, $.fn.socialfeed.raw_records) }

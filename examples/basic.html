@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="../css/jquery.socialfeed.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <!-- jQuery -->
+	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+	<!-- Codebird.js - required for TWITTER -->
+	<script src="../bower_components/codebird-js/codebird.js"></script>
+	<!-- doT.js for rendering templates -->
+	<script src="../bower_components/doT/doT.min.js"></script>
+	<!-- Moment.js for showing "time ago" and/or "date"-->
+	<script src="../bower_components/moment/min/moment.min.js"></script>
+	<!-- Moment Locale to format the date to your language (eg. italian lang)-->
+	<script src="../bower_components/moment/locale/it.js"></script>
+
+    <script type="text/javascript" src="../js/jquery.socialfeed.js"></script>
+
+
+    <script type="text/javascript">
+    	$(document).ready(function(){
+    		$('.social-feed-container').socialfeed({
+				facebook:{
+			        accounts: ['@cplusco'],  //Array: Specify a list of accounts from which to pull wall posts
+			        limit: 12,                                   //Integer: max number of posts to load
+			        access_token: '1519286481659615|f107fae6b7e7e763dace587c6685d9a6',  //String: "APP_ID|APP_SECRET"
+			    },
+	            // GENERAL SETTINGS
+	            length:400,                                      //Integer: For posts with text longer than this length, show an ellipsis.
+	            callback: function(data)
+	            {
+	            	// see your console log.
+	            	console.log(data);
+	            },
+	        });
+    	})
+    </script>
+</head>
+<body>
+	<div class="social-feed-container"></div>
+</body>
+</html>
