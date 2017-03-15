@@ -32,16 +32,22 @@
 			        accounts: ['@cplusco'],  //Array: Specify a list of accounts from which to pull wall posts
 			        limit: 12,                                   //Integer: max number of posts to load
 			        access_token: '1519286481659615|f107fae6b7e7e763dace587c6685d9a6',  //String: "APP_ID|APP_SECRET"
-			        overwrite_fields: true
+			        overwrite_fields: true,
+			        fields: {
+			        	posts: {
+			        		parameters: ['comments, permalink_url, full_picture','id','from','name','message','created_time','story','description','link'],
+			        		limit: 12
+			        	}
+			        }
 			    },
 
 			    weibo: 
 			    {
-			    	access_token: '2.00mfvCiG69Q7gD7f4fff06cf0VOIq6',
+			    	access_token: '2.00mfvCiG69Q7gD6fa5af858cIkMXaB',
 			    	app_key : '3375264401',
 			    	method: 'statuses/friends_timeline.json',
 			    	parameters: {
-			    		uid: '2712633784',
+			    		uid: '6147654130',
 			    	}  
 			    },
 	            // GENERAL SETTINGS

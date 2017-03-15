@@ -14,7 +14,6 @@
 	<!-- Moment.js for showing "time ago" and/or "date"-->
 	<script src="../bower_components/moment/min/moment.min.js"></script>
 	<!-- Moment Locale to format the date to your language (eg. italian lang)-->
-	<script src="../bower_components/moment/locale/it.js"></script>
 
     <script type="text/javascript" src="../js/jquery.socialfeed.js"></script>
 
@@ -22,19 +21,33 @@
     <script type="text/javascript">
     	$(document).ready(function(){
     		$('.social-feed-container').socialfeed({
-				facebook:{
-			        accounts: ['@cplusco', '@aussudirmancup'],  //Array: Specify a list of accounts from which to pull wall posts
-			        limit: 12,                                   //Integer: max number of posts to load
-			        access_token: '1519286481659615|f107fae6b7e7e763dace587c6685d9a6',  //String: "APP_ID|APP_SECRET"
-			        fields: {
-			        	posts: {
-			        		parameters: ['comments, permalink_url, full_picture','id','from','name','message','created_time','story','description','link'],
-			        		limit: 12,
-			        	}
-			        }
-			    },
+				youtube:{
+				    accounts: ['Hujikoman'],  //Array: Specify a list of accounts from which to pull wall posts
+				    limit: 12,                                   //Integer: max number of posts to load
+				    APIkey: 'AIzaSyDo1wHwH0MLcK8WVCBYXecya62uKkddyXo',  //String: "APP_ID|APP_SECRET"
+				    fields:
+				    {
+				    	search: {
+				    		parameters: {
+				    			part: 'snippet,id',
+				    			order: 'date',
+				    			maxResults: 2
+				    		},
+				    		data: function(data)
+				    		{
+				    			var new_data = {
+				    				thumbnail: data.snippet.thumbnails.high.url,
+				    				created_time: data.snippet.publishedAt,
+				    				embed_video: '<iframe width="560" height="315" src="https://www.youtube.com/embed/'+data.id.videoId+'" frameborder="0" allowfullscreen></iframe>'
+				    			}
+				    			return new_data;
+				    		}
+				    	}
+				    }
+				},
 	            // GENERAL SETTINGS
 	            length:400,                                      //Integer: For posts with text longer than this length, show an ellipsis.
+	            template: 'youtube_template.html',
 	            callback: function(data)
 	            {
 	            	// see your console log.
