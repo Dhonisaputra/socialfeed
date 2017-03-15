@@ -5,6 +5,7 @@ Plugin ini berdasarkan plugin Social-feed yang dibuat oleh https://github.com/pa
 # Tambahan pada plugin ini
 
 - [x] SNS Weibo
+- [x] Youtube
 - [x] fungsi untuk ketika masing-masing data di-render menjadi HTML
 
 # Social-feed
@@ -24,6 +25,7 @@ Social networks supported:
 - [x] Google+
 - [x] VK
 - [x] Weibo
+- [x] Youtube
 - [x] Pinterest
 - [x] RSS
 - [ ] Blogspot
@@ -126,7 +128,31 @@ $('.social-feed-container').socialfeed({
             uid: '2712633784',
         }
     },
-
+    
+    // Youtube
+    youtube:{
+        accounts: ['channel_1'],    // string : "Channel that want to fetch"
+        APIkey : 'YOUR_YOUTUBE_API_KEY',             // String : Youtube api key
+        parameters: {                               // Object : parameter that method needed. 
+            ['method'] : 
+            {
+                parameters: 
+                {
+                    [method_name]: menthod_value
+                },
+                dataCostum: function(data)
+                {
+                },
+                data: function(data)
+                {
+                    return {
+                        data['somedata'] = 'somevalue'
+                    }
+                },
+            }
+        }
+    },
+    
     // GOOGLEPLUS
     google:{
          accounts: ['#teslamotors'],                //Array: Specify a list of accounts from which to pull posts
