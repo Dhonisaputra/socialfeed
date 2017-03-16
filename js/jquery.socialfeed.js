@@ -406,12 +406,16 @@ if (typeof Object.create !== 'function') {
                 }
             },
             facebook: {
-                posts: [],
-                graph: 'https://graph.facebook.com/',
-                loaded: false,
-                version: 'v2.5',
-                _def_post_fields: [ 'id','from','name','message','created_time','story','description','link' ],
-                transform_fields: function(fields)
+                posts: [],  // i dont know. i think it's unused.. :3
+                graph: 'https://graph.facebook.com/',   // url to grab json data using graph.facebook not facebook SDK.
+                loaded: false, 
+                version: 'v2.5', // version of Facebook SDK or facebook graphAPI
+                account_length: options.facebook.accounts.length, // Shortcut to access length of facebook accounts in options.
+                account_counter: 0, // jumlah account yang data nya sudah di ambil.
+                data_counter_temporary: 0, // jumlah temporary data json hasil dari account yang diambil. 
+                _def_post_fields: [ 'id','from','name','message','created_time','story','description','link' ], // default parameters when you want to grab facebook posts 
+                // Function untuk men-transformasi options field menjadi Facebook SDK url.
+                transform_fields: function(fields) 
                 {
                     var freturn = []
                     $.each(fields, function(a,b){
@@ -423,9 +427,12 @@ if (typeof Object.create !== 'function') {
                     })
                     return freturn;
                 },
+                // FUnction untuk load Facebook SDK
                 loadFacebookSDK: function(a)
                 {
+                    // deffered
                     var deff = $.Deferred();
+                    // a is options 
                     if(typeof a !== 'object' || !a){a = {appId: a}};
 
                     a = $.extend({
@@ -445,7 +452,7 @@ if (typeof Object.create !== 'function') {
                 },
                 getData: function(account) {
                     
-                    if(!options.facebook.access_token){alert('facebook access token undefined. cant access any further! ');return false; }
+                    if(!options.facebook.access_token){alert('facebook access token undefined. cant access any further! ');return false; } // if no access token in facebook options, return false.
                     var params = {access_token: options.facebook.access_token}
 
                     // load facebook SDK
@@ -483,8 +490,10 @@ if (typeof Object.create !== 'function') {
                                 if (userdata.id !== '') {
                                     // request_url = Feed.facebook.graph + 'v2.4/' + userdata.id + '/posts'+ fields + limit + query_extention;
                                     // proceed(request_url);
+                                    // 
                                     SDK.done(function(){
                                         FB.api(userdata.id, params, function(res){
+                                            Feed.facebook.account_counter +=1
                                             $.each(res, function(a,b){
                                                 Feed.facebook.utility.getPosts(a, b)
                                             })
@@ -542,13 +551,16 @@ if (typeof Object.create !== 'function') {
                                 {
                                     json = options.facebook.fields[fields].dataCustom(json);   
                                 }
-
-                                if(!posts_to_load_count || posts_to_load_count <= 0)
+                                Feed.facebook.data_counter_temporary += json['data'].length;
+                                if(Feed.facebook.account_counter == Feed.facebook.account_length)
                                 {
-                                    posts_to_load_count = json['data'].length
-                                }else
-                                {
-                                    posts_to_load_count += json['data'].length;
+                                    if(!posts_to_load_count || posts_to_load_count <= 0)
+                                    {
+                                        posts_to_load_count = Feed.facebook.data_counter_temporary
+                                    }else
+                                    {
+                                        posts_to_load_count += Feed.facebook.data_counter_temporary;
+                                    }
                                 }
                                 
 
@@ -1274,9 +1286,6 @@ if (typeof Object.create !== 'function') {
         //make the plugin chainable
         // return $(this).each(function() {
             // Initialization
-           /* $.when( calculatePostsToLoadCount() )
-            .done(function(){
-            })*/
             Feed.init();
             if (options.update_period) {
                 setInterval(function() {
