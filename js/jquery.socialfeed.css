@@ -38,7 +38,6 @@ if (typeof Object.create !== 'function') {
 
         var   _glob_records = []
         var   _glob_media = []
-        var   $this = $(this)
 
         var defaults = {
             plugin_folder: '', // a folder in which the plugin is located (with a slash in the end)
@@ -49,13 +48,6 @@ if (typeof Object.create !== 'function') {
             date_format: 'll',
             date_locale: 'en',
             update_period: undefined,
-            _deff_plugins:
-            [
-                'http://laboratorium.xyz/plugins/socialfeed/bower_components/codebird-js/codebird.js',
-                'http://laboratorium.xyz/plugins/socialfeed/bower_components/doT/doT.min.js',
-                'http://laboratorium.xyz/plugins/socialfeed/bower_components/moment/min/moment-with-locales.min.js',
-            ],
-            plugins: [],
             onRender: function(event, data)
             {
 
@@ -178,29 +170,8 @@ if (typeof Object.create !== 'function') {
             this.content.dt_create      = this.content.dt_create.valueOf();
             this.content.text           = Utility.wrapLinks(Utility.shorten(data.message + ' ' + data.description), data.social_network);
             this.content.moderation_passed = (options.moderation) ? options.moderation(this.content) : true;
-            
-           
             Feed[social_network].posts.push(this);
-        }
 
-        function dataCustom(social_network, data)
-        {
-            var title_modification  = data.text.match(/::([^::]+)/i);
-            data.title              = title_modification && title_modification.length > 0 ? data.text.match(/::([^::]+)/i)[1] : '';
-            data.text               = data.text.replace('::'+data.title+'::','')
-            data.message            = data.message.replace('::'+data.title+'::','')
-            var isNewLine           = data.text[0].match(/\n/);
-            var hashtag             = data.text.match(/\S*#(?:\[[^\]]+\]|\S+)/g);
-            data.hashtag_text       = hashtag? hashtag.join(', ') : ''
-            data.hashtag_data       = hashtag? hashtag : []
-            if(isNewLine && isNewLine.length > 0) { data.text = data.text.substr(1); }
-            if(isNewLine && isNewLine.length > 0) { data.message = data.message.substr(1); }
-            if(typeof options[social_network].dataCustom == 'function')
-            {
-                var extendContent = options[social_network].dataCustom(data)
-                data = $.extend(data, extendContent);
-            }
-            return data;
         }
         SocialFeedPost.prototype = {
             template_builder: function(data, onRender)
@@ -270,14 +241,14 @@ if (typeof Object.create !== 'function') {
                 }
             },
             render: function() {
-                // var data = this.content;
-                var data = dataCustom(this.content.social_network, this.content);
-                // data custorm function 
-                
+                var data = this.content;
                 data.dt_create_unix = moment(data.dt_create).unix();
+
                 options.onRender(event, data)
 
                 _glob_records.push(data);
+
+
 
                 loaded_post_count++;
 
@@ -290,27 +261,18 @@ if (typeof Object.create !== 'function') {
                     {
                         $.each($.fn.socialfeed.records, function(a,b){
                             SocialFeedPost.prototype.template_builder(b, function(ui){
-                                $(ui).data(b)
-                                // call function onRendeTemplate in each social_network
-                                if(typeof options[b.social_network].onRenderTemplate == 'function')
-                                {
-                                    options[b.social_network].onRenderTemplate(ui, b);
-                                }
-
                                 if(options.onRenderTemplate)
                                 {
+
+                                    $(ui).data(b)
                                     options.onRenderTemplate(ui, b)
                                 }
                             })
                         })
                     }
 
-                    if(options.callback){ 
-                        options.callback($this, $.fn.socialfeed.records); 
-                    }
+                    if(options.callback){ options.callback($.fn.socialfeed.records); }
                     if(options.raw){ options.raw(event, $.fn.socialfeed.raw_records) }
-                    console.log('selesai')
-                    return $(this)
                     
                 }
 
@@ -321,6 +283,7 @@ if (typeof Object.create !== 'function') {
         var Feed = {
             template: false,
             init: function() {
+
                 Feed.getTemplate(function() {
                     social_networks.forEach(function(network) {
                         if (options[network]) {
@@ -360,6 +323,7 @@ if (typeof Object.create !== 'function') {
                 posts: [],
                 loaded: false,
                 api: 'http://api.tweecool.com/',
+
                 getData: function(account) {
 
                     var cb = new Codebird();
@@ -446,24 +410,18 @@ if (typeof Object.create !== 'function') {
                 graph: 'https://graph.facebook.com/',   // url to grab json data using graph.facebook not facebook SDK.
                 loaded: false, 
                 version: 'v2.5', // version of Facebook SDK or facebook graphAPI
-                account_length: (options.facebook)? options.facebook.accounts.length : 0, // Shortcut to access length of facebook accounts in options.
+                account_length: options.facebook.accounts.length, // Shortcut to access length of facebook accounts in options.
                 account_counter: 0, // jumlah account yang data nya sudah di ambil.
                 data_counter_temporary: 0, // jumlah temporary data json hasil dari account yang diambil. 
-                _default_posts_fields: ['comments, permalink_url, full_picture','id','from','name','message','created_time','story','description','link'], // default parameters when you want to grab facebook posts 
+                _def_post_fields: [ 'id','from','name','message','created_time','story','description','link' ], // default parameters when you want to grab facebook posts 
                 // Function untuk men-transformasi options field menjadi Facebook SDK url.
                 transform_fields: function(fields) 
                 {
                     var freturn = []
                     $.each(fields, function(a,b){
                         var a   = a;
-                        switch(a)
-                        {
-                            case 'posts':
-                                b.parameters = $.unique(b.parameters.concat(Feed.facebook._default_posts_fields) );
-                                break;
-                        }
-                        var b   = b.parameters.join(',');
                         a       += (options.facebook.fields[a].limit)? '.limit('+options.facebook.fields[a].limit+')' : '';
+                        var b   = b.parameters.join(',');
                         a       += (b.length > 0)? '{'+b+'}' : '';
                         freturn.push(a);
                     })
@@ -519,7 +477,7 @@ if (typeof Object.create !== 'function') {
                         return false;
                     }
 
-                    var fields = Feed.facebook.transform_fields(options.facebook.fields);
+                    var fields = (Array.isArray(options.facebook.fields) ) ? Feed.facebook._def_post_fields : Feed.facebook.transform_fields(options.facebook.fields);
                     params.fields = fields;
 
                     // jika options.fields tersedia
@@ -530,6 +488,9 @@ if (typeof Object.create !== 'function') {
                             var username = account.substr(1);
                             Feed.facebook.utility.getUserId(username, function(userdata) {
                                 if (userdata.id !== '') {
+                                    // request_url = Feed.facebook.graph + 'v2.4/' + userdata.id + '/posts'+ fields + limit + query_extention;
+                                    // proceed(request_url);
+                                    // 
                                     SDK.done(function(){
                                         FB.api(userdata.id, params, function(res){
                                             Feed.facebook.account_counter +=1
@@ -636,8 +597,6 @@ if (typeof Object.create !== 'function') {
                             post.message        = (text) ? text : '';
                             post.description    = (element.description) ? element.description : '';
                             post.link           = (element.link) ? element.link : 'http://facebook.com/' + post.id;
-                            post.picture        = (element.full_picture) ? element.full_picture : undefined;
-                            post.comment_length = (element.comments) ? element.comments.data.length : 0;
                             post.raw            = element
                             post = $.extend(post, extend)
                             if (options.show_media === true) {
@@ -735,7 +694,6 @@ if (typeof Object.create !== 'function') {
                 posts: [],
                 api: 'https://api.instagram.com/v1/',
                 loaded: false,
-                limit: 10,
                 accessType: function() {
                     // If we have both the client_id and access_token set in options,
                     // use access_token for authentication. If client_id is not set
@@ -765,12 +723,13 @@ if (typeof Object.create !== 'function') {
                     switch (account[0]) {
                         case '@':
                             var username = account.substr(1);
-                            url = Feed.instagram.api + 'users/search/?q=' + username + '&' + authTokenParams + '&count=' +options.instagram.limit+ '&callback=?';
+                            url = Feed.instagram.api + 'users/search/?q=' + username + '&' + authTokenParams + '&count=1' + '&callback=?';
                             Utility.request(url, Feed.instagram.utility.getUsers);
                             break;
                         case '#':
                             var hashtag = account.substr(1);
                             url = Feed.instagram.api + 'tags/' + hashtag + '/media/recent/?' + authTokenParams + '&' + 'count=' + options.instagram.limit + '&callback=?';
+                            console.log(url)
                             Utility.request(url, Feed.instagram.utility.getImages);
                             break;
                         case '&':
@@ -784,8 +743,6 @@ if (typeof Object.create !== 'function') {
                     getImages: function(json) {
                         _glob_media.push('instagram');
                         if (json.data) {
-                            console.log(json.data)
-
                             if(!posts_to_load_count || posts_to_load_count <= 0)
                             {
                                 posts_to_load_count = json.data.length
@@ -808,6 +765,7 @@ if (typeof Object.create !== 'function') {
                         if (options.instagram.access_type !== 'undefined') {
                             var authTokenParams = options.instagram.access_type + '=' + options.instagram[options.instagram.access_type];
                         }
+
                         if (!jQuery.isArray(json.data)) json.data = [json.data]
                         json.data.forEach(function(user) {
                             var url = Feed.instagram.api + 'users/' + user.id + '/media/recent/?' + authTokenParams + '&' + 'count=' + options.instagram.limit + '&callback=?';
@@ -826,8 +784,6 @@ if (typeof Object.create !== 'function') {
                         post.description    = '';
                         post.link           = element.link;
                         post.raw            = element;
-                        post.comment_length = element.comments? element.comments.count : 0;
-                        post.picture        = element.images? element.images.standard_resolution.url : undefined;
                         if (options.show_media) {
                             post.attachment = '<img class="attachment" src="' + element.images.standard_resolution.url + '' + '" />';
                         }
@@ -1126,8 +1082,6 @@ if (typeof Object.create !== 'function') {
                         post.author_link = 'http://weibo.com/u/2712633784' + element.user.idstr;
                         post.message = element.text;
                         post.description = '';
-                        post.comment_length = element.comment_length ? element.comment_length : 0;
-                        post.picture = element.original_pic ? element.original_pic : undefined
                         post.link = 'http://api.weibo.com/2/statuses/go?source='+options.weibo.app_key+'&access_token='+options.weibo.access_token+'&uid='+element.user.id+'&id='+element.id;
                         if (options.show_media) {
                             post.attachment = '<img class="attachment" src="' + element.images.standard_resolution.url + '' + '" />';
@@ -1210,9 +1164,6 @@ if (typeof Object.create !== 'function') {
                 graph: 'https://www.googleapis.com/youtube/',
                 loaded: false,
                 version: 'v3',
-                _account_counter_length: 0,
-                _post_counter_length: 0,
-                _account_length: (options.youtube && options.youtube.accounts.length > 0)? options.youtube.accounts.length : 0,
                 load_process: function(request_url, callback)
                 {
                         Utility.request(request_url, callback);
@@ -1225,14 +1176,9 @@ if (typeof Object.create !== 'function') {
                     Feed.youtube.current_user = account;
                     var graph = Feed.youtube.graph
                     var version = Feed.youtube.version
-                    var grabUser = graph+version+'/channels?part=contentDetails,snippet&forUsername='+account+'&key='+options.youtube.APIkey
-                    var username = Feed.youtube.load_process(grabUser, Feed.youtube.utility.getUser);
-                    if(!username)
-                    {
-                        grabUser = graph+version+'/channels?part=contentDetails,snippet&id='+account+'&key='+options.youtube.APIkey
-                        var username = Feed.youtube.load_process(grabUser, Feed.youtube.utility.getUser);
-                    }
-                    // Feed.youtube.utility.getPosts();
+                    var grabUser = graph+version+'/channels?part=contentDetails&forUsername='+account+'&key='+options.youtube.APIkey
+                    Feed.youtube.load_process(grabUser, Feed.youtube.utility.getUser);
+                    Feed.youtube.utility.getPosts();
 
                 },
                 utility: 
@@ -1240,20 +1186,20 @@ if (typeof Object.create !== 'function') {
                     getUser: function(json)
                     {
                         if(json.items.length < 1)
-                        {                            
+                        {
                             var error_text = 'User '+Feed.youtube.current_user+' not found!';
                             console.error(error_text)
+                            alert(error_text)
                             return false;
                         }
                         Feed.youtube._userdata = json;
-                        Feed.youtube.utility.getPosts(json);
                         Feed.youtube._deff_users.resolve(json);
                         Feed.youtube._deff_users.promise();
                     },
-                    getPosts: function(res)
+                    getPosts: function()
                     {
-                        // $.when(Feed.youtube._deff_users)
-                        // .done(function(res){
+                        $.when(Feed.youtube._deff_users)
+                        .done(function(res){
                             if(res.items.length > 1) console.warn('We found '+res.items.length+' users! we automatically using first user.')
                             var graph = Feed.youtube.graph
                             var version = Feed.youtube.version
@@ -1267,8 +1213,6 @@ if (typeof Object.create !== 'function') {
                                 console.error(error_text)
                                 return false;
                             }
-                            
-
                             $.each(options.youtube.fields, function(a,b){
                                 grabContent += a+'?';
                                 var _arr_params = []
@@ -1283,29 +1227,20 @@ if (typeof Object.create !== 'function') {
                                 _arr_params.push('channelId='+res.items[0].id);
 
                                 grabContent += _arr_params.join('&');
-                                // Feed.youtube.load_process(grabContent, Feed.youtube.utility.getContent);
-                                $.getJSON(grabContent, function(res){
-                                    Feed.youtube.utility.getContent(res)
-                                    // console.log(res)
-                                })
+                                Feed.youtube.load_process(grabContent, Feed.youtube.utility.getContent);
 
                             })
-                        // })  
+                        })  
                     },
                     getContent: function(json)
                     {
                         _glob_media.push('youtube');
-                        Feed.youtube._account_counter_length +=1
-                        Feed.youtube._post_counter_length += json.items.length;
-                        if(Feed.youtube._account_counter_length == Feed.youtube._account_length)
+                        if(!posts_to_load_count || posts_to_load_count <= 0)
                         {
-                            if(!posts_to_load_count || posts_to_load_count <= 0)
-                            {
-                                posts_to_load_count = Feed.youtube._post_counter_length
-                            }else
-                            {
-                                posts_to_load_count += Feed.youtube._post_counter_length;
-                            }
+                            posts_to_load_count = json.items.length
+                        }else
+                        {
+                            posts_to_load_count += json.items.length;
                         }
                         if(typeof options.youtube.fields[Feed.youtube.current_fields].data == 'function')
                         {
@@ -1315,7 +1250,6 @@ if (typeof Object.create !== 'function') {
                                     b = $.extend(b, options.youtube.fields[Feed.youtube.current_fields].dataCustom(b) );
                                 }
                                 var extend = $.extend(b, options.youtube.fields[Feed.youtube.current_fields].data(b) );  
-
                                 var post = new SocialFeedPost('youtube', Feed.youtube.utility.unifyPostData(json, extend));
                                 post.render();
                             })
@@ -1324,24 +1258,23 @@ if (typeof Object.create !== 'function') {
                     unifyPostData: function(element, extend) {
                         var post = {}
                         var userdata = Feed.youtube._userdata;
-                        // console.log(userdata, userdata.items[0].snippet.title)
+
                         post.dt_create      = extend && extend.created_time? moment(extend.created_time) : moment();
                         post.dt_create      = element? moment(element.created_time) : post.dt_create;
                         if(element)
                         {
                             var text = (element.message) ? element.message : element.story;
                             post.id             = element.id && typeof element.id != 'object'? element.id : Date.now();
-                            post.author_link    = 'https://www.youtube.com/channel/'+extend.snippet.channelId;
-                            post.author_avatar  = userdata.items[0].snippet.thumbnails.medium.url;
-                            post.author_name    = userdata.items[0].snippet.title;
-                            post.picture        = userdata.items[0].snippet.thumbnails.medium.url;
-                            post.name           = userdata.items[0].snippet.title || "";
+                            post.author_link    = 'https://www.youtube.com/channel/'+userdata.items[0].id;
+                            post.author_name    = Feed.youtube.current_user;
+                            post.name           = Feed.youtube.current_user || "";
                             post.message        = (text) ? text : '';
                             post.description    = (element.description) ? element.description : '';
                             post.link           = 'https://www.youtube.com/watch?v='+extend.id.videoId;
                             post.raw            = element
                         }
                         post = $.extend(extend, post)
+                        console.log(post)
                         return post;
                     }
                 }
@@ -1351,14 +1284,15 @@ if (typeof Object.create !== 'function') {
         // console.log(this)
 
         //make the plugin chainable
-        // var plugins = options._deff_plugins.concat(options.plugins)
-        return Feed.init();
-        /*if (options.update_period) {
-            setInterval(function() {
-                return Feed.init();
-            }, options.update_period);
-        }*/
-
+        // return $(this).each(function() {
+            // Initialization
+            Feed.init();
+            if (options.update_period) {
+                setInterval(function() {
+                    return Feed.init();
+                }, options.update_period);
+            }
+        // })
     };
 
     $.fn.socialfeed.paging = {}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" type="text/css" href="../css/jquery.socialfeed.css">
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <!-- <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"> -->
 
     <!-- jQuery -->
 	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
@@ -16,13 +16,56 @@
 	<!-- Moment Locale to format the date to your language (eg. italian lang)-->
 
     <script type="text/javascript" src="../js/jquery.socialfeed.js"></script>
+    <script type="text/javascript" src="../js/drafts/youtubefeed.js"></script>
 
 
     <script type="text/javascript">
     	$(document).ready(function(){
-    		$('.social-feed-container').socialfeed({
+    		var a = new Youtubefeed({
+				APIkey: 'AIzaSyDo1wHwH0MLcK8WVCBYXecya62uKkddyXo',
+				fields: [{
+						name: 'Hujikoman',
+						method: 'search',
+						accounts: ['@Hujikoman', '!_duWnJ6nsz0'],
+						parameters: {
+							part: 'snippet',
+							type: 'video',
+							q: 'kobasolo'
+						},
+
+	            		template: 'youtube_template.html',
+	            		template_target: '.social-feed-container',
+						dataCustom: function(data)
+						{
+							return {
+								description: data.description,
+			    				thumbnail: data.snippet.thumbnails.high.url,
+								embed_video: '<iframe width="560" height="315" src="https://www.youtube.com/embed/'+data.id.videoId+'" frameborder="0" allowfullscreen></iframe>'
+							}
+						},
+					}
+					/*, {
+						name: 'search_a',
+						method: 'channels',
+						parameters: {
+							part: 'snippet', forUsername: 'Hujikoman'
+						},
+						data: function(){},
+						onSuccess: function(res){console.log(res)},
+						onRender: function(){},
+					}*/],
+					complete: function(res)
+					{
+						console.log(res)
+					}
+
+			})
+			a.done(function(res){
+				// console.log(res)
+			})
+    		/*$('.social-feed-container').socialfeed({
 				youtube:{
-				    accounts: ['Hujikoman'],  //Array: Specify a list of accounts from which to pull wall posts
+				    accounts: ['Hujikoman','UCjnZNauqDhhdfmAgDpB0H-A'],  //Array: Specify a list of accounts from which to pull wall posts
 				    limit: 12,                                   //Integer: max number of posts to load
 				    APIkey: 'AIzaSyDo1wHwH0MLcK8WVCBYXecya62uKkddyXo',  //String: "APP_ID|APP_SECRET"
 				    fields:
@@ -53,7 +96,7 @@
 	            	// see your console log.
 	            	console.log(data);
 	            },
-	        });
+	        });*/
     	})
     </script>
 </head>
